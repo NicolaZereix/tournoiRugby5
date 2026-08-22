@@ -105,6 +105,24 @@ td.team{text-align:left;font-weight:800}
   .badge{padding:4px 3px;font-size:10px}
   .tie-select{grid-template-columns:1fr}
 }
+
+.cloudbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;margin-bottom:12px;border-radius:10px;border:1px solid #cbd8ee;background:#f4f8ff}
+.cloudstate{font-size:13px;font-weight:800}
+.cloudstate.online{color:var(--green)}
+.cloudstate.offline{color:var(--red)}
+.cloudstate.wait{color:#8b6500}
+.authmodal{position:fixed;inset:0;z-index:120;background:rgba(8,18,40,.72);display:none;align-items:center;justify-content:center;padding:16px}
+.authmodal.show{display:flex}
+.authbox{width:min(440px,100%);background:#fff;border-radius:16px;padding:18px;color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.authbox h2{margin:0 0 8px;color:var(--blue)}
+.authbox p{font-size:13px;color:var(--muted);line-height:1.45}
+.authbox label{display:block;font-size:13px;font-weight:800;color:var(--muted);margin:10px 0 5px}
+.authactions{display:flex;gap:8px;margin-top:14px}
+.authactions button{flex:1}
+.publichint{font-size:12px;color:var(--muted);margin-top:4px}
+.adminonly.hidden{display:none!important}
+.readonly input,.readonly select{background:#f5f6f8;color:#6d778a}
+
 @media print{
   .toolbar,.status,.bottom-save,#displayOverlay{display:none!important}
   body{background:#fff;padding-bottom:0}
@@ -121,14 +139,22 @@ td.team{text-align:left;font-weight:800}
 
 <div class="wrap">
   <div class="toolbar">
-    <button class="orange" onclick="exportData()">💾 Sauvegarder</button>
-    <label class="filebtn secondary">📂 Importer<input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)"></label>
+    <button id="authButton" onclick="authButtonAction()">🔒 Organisation</button>
+    <button class="orange adminonly" onclick="exportData()">💾 Sauvegarder</button>
+    <label class="filebtn secondary adminonly">📂 Importer<input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)"></label>
     <button class="secondary" onclick="openDisplayMode()">📺 Mode affichage</button>
     <button class="secondary" onclick="window.print()">🖨️ Imprimer / PDF</button>
-    <button class="danger" onclick="resetTournament()">Réinitialiser</button>
+    <button class="danger adminonly" onclick="resetTournament()">Réinitialiser</button>
   </div>
 
   <div class="status" id="saveStatus">Les données sont enregistrées automatiquement sur cet appareil.</div>
+  <div class="cloudbar">
+    <div>
+      <div id="cloudState" class="cloudstate wait">Connexion au classement en direct…</div>
+      <div id="modeText" class="publichint">Mode public : consultation uniquement.</div>
+    </div>
+    <button class="secondary" onclick="forceCloudReload()">↻ Actualiser</button>
+  </div>
 
   <div class="card config">
     <div>
@@ -191,7 +217,24 @@ td.team{text-align:left;font-weight:800}
   </div>
 </div>
 
-<div class="bottom-save"><button onclick="exportData()">💾 Sauvegarder le tournoi</button></div>
+
+<div id="authModal" class="authmodal" onclick="modalBackdrop(event)">
+  <div class="authbox">
+    <h2>Accès organisation</h2>
+    <p>Connectez-vous avec le compte organisateur Firebase. Les spectateurs n'ont pas besoin de compte : ils voient les résultats en direct en lecture seule.</p>
+    <label for="authEmail">E-mail</label>
+    <input id="authEmail" type="text" autocomplete="username" placeholder="organisateur@...">
+    <label for="authPassword">Mot de passe</label>
+    <input id="authPassword" type="password" autocomplete="current-password" placeholder="Mot de passe">
+    <div id="authError" class="publichint"></div>
+    <div class="authactions">
+      <button class="secondary" onclick="closeAuthModal()">Annuler</button>
+      <button onclick="loginOrganizer()">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-save adminonly"><button onclick="exportData()">💾 Sauvegarder le tournoi</button></div>
 
 <div id="displayOverlay">
   <div class="display-inner">
@@ -208,8 +251,17 @@ td.team{text-align:left;font-weight:800}
   </div>
 </div>
 
+
+<script src="./firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-database-compat.js"></script>
+
 <script>
 const STORAGE_KEY="rugby5_azereix_v4";
+const FIREBASE_CONFIG=window.TOURNAMENT_FIREBASE_CONFIG||{};
+const ONLINE_PATH=window.TOURNAMENT_DB_PATH||"tournaments/azereix2026";
+let firebaseReady=false, dbRef=null, auth=null, isOrganizer=false, cloudLastJson="", cloudSaveTimer=null;
 const START_MIN=14*60, PLAY_MIN=10, SLOT_MIN=12, PAUSE_BEFORE_FINALS=12;
 
 let state={
@@ -220,6 +272,144 @@ let state={
   tieWinners:{}
 };
 let poolSchedule=[], finalSchedule=[];
+
+
+function firebaseConfigured(){
+  return FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && !String(FIREBASE_CONFIG.apiKey).includes("REMPLACER");
+}
+function normalizeState(d){
+  if(!d || !d.teams) return null;
+  const tc=Number(d.teamCount||(d.teams.A.length+d.teams.B.length));
+  const pt=Number(d.poolTerrains||1);
+  if(![8,10].includes(tc)||![1,2].includes(pt)) return null;
+  return {
+    teamCount:tc,
+    poolTerrains:pt,
+    teams:d.teams,
+    scores:d.scores||{},
+    tieWinners:d.tieWinners||{}
+  };
+}
+function setCloudStatus(text,kind="wait"){
+  const e=document.getElementById("cloudState");
+  if(!e)return;
+  e.textContent=text;
+  e.className="cloudstate "+kind;
+}
+function updateModeUI(){
+  document.body.classList.toggle("readonly",!isOrganizer);
+  document.querySelectorAll(".adminonly").forEach(e=>e.classList.toggle("hidden",!isOrganizer));
+  const btn=document.getElementById("authButton");
+  const mode=document.getElementById("modeText");
+  if(btn) btn.textContent=isOrganizer?"🔓 Déconnexion":"🔒 Organisation";
+  if(mode) mode.textContent=isOrganizer?"Mode organisation : vous pouvez modifier les équipes et les scores.":"Mode public : consultation uniquement.";
+  // Re-render inputs with disabled state
+  if(document.getElementById("poolAEditor")) renderAll();
+}
+function initFirebase(){
+  if(!firebaseConfigured()){
+    setCloudStatus("Firebase n'est pas encore configuré dans firebase-config.js.","offline");
+    return;
+  }
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    auth=firebase.auth();
+    const db=firebase.database();
+    dbRef=db.ref(ONLINE_PATH);
+    firebaseReady=true;
+    setCloudStatus("Connexion au classement en direct…","wait");
+
+    auth.onAuthStateChanged(user=>{
+      isOrganizer=!!user;
+      updateModeUI();
+      if(user){
+        setCloudStatus("Connecté au direct • organisation authentifiée","online");
+        // If database is empty, seed it with current tournament state.
+        dbRef.once("value").then(s=>{
+          if(!s.exists()) scheduleCloudSave(true);
+        });
+      }
+    });
+
+    dbRef.on("value",snap=>{
+      if(!snap.exists()){
+        setCloudStatus(isOrganizer?"Base en ligne vide • prête à être initialisée":"Le tournoi en ligne n'est pas encore initialisé.","wait");
+        return;
+      }
+      const incoming=normalizeState(snap.val());
+      if(!incoming)return;
+      const incomingJson=JSON.stringify(incoming);
+      cloudLastJson=incomingJson;
+      if(incomingJson!==JSON.stringify(state)){
+        state=incoming;
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+        renderAll();
+      }
+      setCloudStatus(isOrganizer?"Direct synchronisé • vous pouvez modifier":"Résultats en direct • synchronisation automatique","online");
+    },err=>{
+      console.error(err);
+      setCloudStatus("Impossible de lire les résultats en ligne.","offline");
+    });
+  }catch(e){
+    console.error(e);
+    setCloudStatus("Erreur de configuration Firebase.","offline");
+  }
+}
+function scheduleCloudSave(force=false){
+  if(!firebaseReady||!isOrganizer||!dbRef)return;
+  clearTimeout(cloudSaveTimer);
+  const send=()=>{
+    const payload=JSON.parse(JSON.stringify(state));
+    const js=JSON.stringify(payload);
+    if(!force && js===cloudLastJson)return;
+    dbRef.set(payload).then(()=>{
+      cloudLastJson=js;
+      setCloudStatus("Résultats publiés en direct","online");
+    }).catch(err=>{
+      console.error(err);
+      setCloudStatus("Échec de publication • vérifiez les règles Firebase","offline");
+    });
+  };
+  if(force) send(); else cloudSaveTimer=setTimeout(send,300);
+}
+function forceCloudReload(){
+  if(!firebaseReady||!dbRef){setCloudStatus("Firebase n'est pas configuré.","offline");return;}
+  setCloudStatus("Actualisation…","wait");
+  dbRef.once("value").then(s=>{
+    if(s.exists()){
+      const incoming=normalizeState(s.val());
+      if(incoming){state=incoming;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderAll();}
+      setCloudStatus("Résultats actualisés","online");
+    }else setCloudStatus("Le tournoi en ligne n'est pas encore initialisé.","wait");
+  }).catch(()=>setCloudStatus("Actualisation impossible.","offline"));
+}
+function authButtonAction(){
+  if(isOrganizer){
+    auth.signOut().catch(console.error);
+  }else{
+    document.getElementById("authModal").classList.add("show");
+    setTimeout(()=>document.getElementById("authEmail").focus(),50);
+  }
+}
+function closeAuthModal(){document.getElementById("authModal").classList.remove("show")}
+function modalBackdrop(e){if(e.target.id==="authModal")closeAuthModal()}
+function loginOrganizer(){
+  if(!firebaseReady||!auth){
+    document.getElementById("authError").textContent="Firebase n'est pas encore configuré.";
+    return;
+  }
+  const email=document.getElementById("authEmail").value.trim();
+  const pass=document.getElementById("authPassword").value;
+  const err=document.getElementById("authError");
+  err.textContent="Connexion…";
+  auth.signInWithEmailAndPassword(email,pass).then(()=>{
+    err.textContent="";
+    document.getElementById("authPassword").value="";
+    closeAuthModal();
+  }).catch(()=>{
+    err.textContent="Connexion refusée. Vérifiez l'e-mail et le mot de passe.";
+  });
+}
 
 function freshState(teamCount=10,poolTerrains=2){
   const n=teamCount/2;
@@ -341,6 +531,7 @@ function updateSummary(){
 }
 
 function changeConfig(){
+  if(!isOrganizer){renderAll();return;}
   const tc=Number(document.getElementById("teamCount").value);
   const pt=Number(document.getElementById("poolTerrains").value);
   if(tc===state.teamCount&&pt===state.poolTerrains)return;
@@ -355,18 +546,20 @@ function changeConfig(){
     state.poolTerrains=pt;
     state.scores={};state.tieWinners={};
   }
-  save("Configuration modifiée.");renderAll();
+  save("Configuration modifiée.");scheduleCloudSave(true);renderAll();
 }
 
 function renderEditors(){
   document.getElementById("teamCount").value=String(state.teamCount);
   document.getElementById("poolTerrains").value=String(state.poolTerrains);
+  document.getElementById("teamCount").disabled=!isOrganizer;
+  document.getElementById("poolTerrains").disabled=!isOrganizer;
   for(const pool of ["A","B"]){
     const el=document.getElementById("pool"+pool+"Editor");el.innerHTML="";
     state.teams[pool].forEach((name,i)=>{
       const lab=document.createElement("label");lab.textContent=pool+(i+1);
-      const inp=document.createElement("input");inp.type="text";inp.value=name;
-      inp.oninput=()=>{state.teams[pool][i]=inp.value||`${pool}${i+1}`;save();renderDynamic()};
+      const inp=document.createElement("input");inp.type="text";inp.value=name;inp.disabled=!isOrganizer;
+      inp.oninput=()=>{if(!isOrganizer)return;state.teams[pool][i]=inp.value||`${pool}${i+1}`;save();scheduleCloudSave();renderDynamic()};
       el.append(lab,inp);
     });
   }
@@ -397,7 +590,7 @@ function renderTables(){
   }
 }
 function scoreInput(id,side,value){
-  return `<input class="score" inputmode="numeric" pattern="[0-9]*" type="number" min="0" step="1" value="${value??''}" oninput="setScore('${id}','${side}',this.value)">`;
+  return `<input class="score" ${isOrganizer?"":"disabled"} inputmode="numeric" pattern="[0-9]*" type="number" min="0" step="1" value="${value??''}" oninput="setScore('${id}','${side}',this.value)">`;
 }
 function renderPoolMatches(){
   const box=document.getElementById("poolMatches");box.innerHTML="";
@@ -435,7 +628,7 @@ function currentFinalTeams(){
 function tieSelector(id,teams){
   const sc=scoreOf(id);if(sc.a===null||sc.b===null||sc.a!==sc.b)return "";
   const v=state.tieWinners[id]||"";
-  return `<div class="tie-select"><label>Équipe qualifiée / gagnante :</label><select onchange="setTieWinner('${id}',this.value)"><option value="">Choisir…</option><option value="a" ${v==='a'?'selected':''}>${esc(teams[0])}</option><option value="b" ${v==='b'?'selected':''}>${esc(teams[1])}</option></select></div>`;
+  return `<div class="tie-select"><label>Équipe qualifiée / gagnante :</label><select ${isOrganizer?"":"disabled"} onchange="setTieWinner('${id}',this.value)"><option value="">Choisir…</option><option value="a" ${v==='a'?'selected':''}>${esc(teams[0])}</option><option value="b" ${v==='b'?'selected':''}>${esc(teams[1])}</option></select></div>`;
 }
 function renderFinalMatches(){
   const teams=currentFinalTeams(),box=document.getElementById("finalMatches");box.innerHTML="";
@@ -474,18 +667,20 @@ function renderNext(){
   document.getElementById("displayNextMatches").innerHTML=h;
 }
 function setScore(id,side,value){
+  if(!isOrganizer)return;
   if(!state.scores[id])state.scores[id]={a:"",b:""};
   state.scores[id][side]=value;
   const sc=scoreOf(id);if(sc.a!==null&&sc.b!==null&&sc.a!==sc.b)delete state.tieWinners[id];
-  save();renderDynamic();
+  save();scheduleCloudSave();renderDynamic();
 }
-function setTieWinner(id,v){if(v)state.tieWinners[id]=v;else delete state.tieWinners[id];save();renderDynamic()}
+function setTieWinner(id,v){if(!isOrganizer)return;if(v)state.tieWinners[id]=v;else delete state.tieWinners[id];save();scheduleCloudSave();renderDynamic()}
 function renderDynamic(){buildSchedules();renderTables();renderPoolMatches();renderFinalMatches();renderNext();updateSummary()}
 function renderAll(){buildSchedules();renderEditors();renderDynamic()}
 
 function resetTournament(){
+  if(!isOrganizer)return;
   if(!confirm("Effacer tous les noms d'équipes et tous les scores ?"))return;
-  state=freshState(state.teamCount,state.poolTerrains);save("Tournoi réinitialisé.");renderAll();
+  state=freshState(state.teamCount,state.poolTerrains);save("Tournoi réinitialisé.");scheduleCloudSave(true);renderAll();
 }
 function exportData(){
   const d=new Date(),p=n=>String(n).padStart(2,"0"),stamp=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
@@ -495,6 +690,7 @@ function exportData(){
   save("Sauvegarde exportée : conservez le fichier JSON.");
 }
 function importData(event){
+  if(!isOrganizer)return;
   const file=event.target.files[0];if(!file)return;
   const r=new FileReader();
   r.onload=()=>{
@@ -505,7 +701,7 @@ function importData(event){
       d.poolTerrains=Number(d.poolTerrains||1);
       if(![8,10].includes(d.teamCount)||![1,2].includes(d.poolTerrains))throw new Error();
       state=d;state.tieWinners=state.tieWinners||{};
-      save("Sauvegarde importée : "+file.name);renderAll();
+      save("Sauvegarde importée : "+file.name);scheduleCloudSave(true);renderAll();
     }catch(e){alert("Fichier de sauvegarde non valide.");}
     event.target.value="";
   };
@@ -520,7 +716,7 @@ function closeDisplayMode(){
   if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
 }
 
-load();renderAll();
+load();renderAll();updateModeUI();initFirebase();
 </script>
 </body>
 </html>
