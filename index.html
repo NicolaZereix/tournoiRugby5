@@ -1,108 +1,109 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Tournoi Rugby à 5 – Gestion dynamique</title>
 <style>
 :root{
-  --bg:#f5f7fb; --card:#fff; --ink:#172033; --muted:#697386; --line:#d8deea;
-  --blue:#123d8d; --blue2:#1f5bb8; --orange:#ee7b2d; --green:#2d8a55; --red:#b43f3f;
+  --bg:#f4f6fa;--card:#fff;--ink:#172033;--muted:#6d778a;--line:#d8deea;
+  --blue:#123d8d;--blue2:#1f5bb8;--orange:#ee7b2d;--green:#2d8a55;--red:#b43f3f;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif;padding-bottom:92px}
-header{background:linear-gradient(135deg,var(--blue),#0c2b66);color:#fff;padding:18px 20px}
-header h1{margin:0;font-size:24px}
-header p{margin:6px 0 0;opacity:.9;font-size:14px}
-.wrap{max-width:1200px;margin:auto;padding:18px}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-button,.filebtn{
-  border:0;border-radius:10px;padding:12px 14px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;font-size:15px
-}
-button.secondary,.filebtn.secondary{background:#e9eef8;color:var(--blue)}
-button.danger{background:#f4e5e5;color:var(--red)}
-input[type="file"]{display:none}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(20,35,70,.05)}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+body{padding-bottom:92px}
+header{background:linear-gradient(135deg,var(--blue),#0c2b66);color:#fff;padding:16px}
+header h1{margin:0;font-size:23px}
+header p{margin:6px 0 0;opacity:.92;font-size:13px}
+.wrap{max-width:1180px;margin:auto;padding:14px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+button,.filebtn{border:0;border-radius:10px;padding:12px 14px;font-weight:800;cursor:pointer;background:var(--blue);color:#fff;font-size:14px}
+.secondary{background:#e7edf8!important;color:var(--blue)!important}
+.orange{background:var(--orange)!important}
+.danger{background:#f2e2e2!important;color:var(--red)!important}
+input[type=file]{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(20,35,70,.05)}
+.config{display:grid;grid-template-columns:220px 220px 1fr;gap:14px;margin-bottom:14px}
+.config label{font-size:13px;font-weight:800;color:var(--muted);display:block;margin-bottom:6px}
+input[type=text],input[type=number],select{width:100%;padding:10px;border:1px solid #bec8d8;border-radius:9px;background:#fff;color:var(--ink);font-size:16px}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.summary div{background:#f7f9fd;border:1px solid #e3e8f1;border-radius:10px;padding:10px}
+.summary b{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.summary span{font-size:16px;font-weight:900;color:var(--blue)}
+.warning{display:none;padding:11px 12px;background:#fff3d8;border:1px solid #e8c978;border-radius:10px;color:#644600;font-size:13px;line-height:1.4;margin-bottom:12px}
+.warning.show{display:block}
+.status{padding:9px 12px;background:#eef6ff;border:1px solid #c9dcf7;border-radius:9px;margin-bottom:12px;font-size:13px}
+.next-card{background:#fff7ee;border:2px solid #f1b078;border-radius:14px;padding:14px;margin-bottom:14px}
+.eyebrow{font-size:12px;font-weight:900;color:var(--orange);text-transform:uppercase}
+.next-time{font-size:24px;font-weight:900;color:var(--blue);margin:7px 0}
+.next-matches{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.next-match{background:#fff;border:1px solid #f2c79f;border-radius:10px;padding:10px;font-weight:800;text-align:center}
+.next-match .terrain{display:block;font-size:11px;color:var(--orange);text-transform:uppercase;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .card h2{margin:0 0 12px;font-size:18px;color:var(--blue)}
-.pool-editor{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:center}
-.pool-editor label{font-weight:700;text-align:center;color:var(--muted)}
-input[type="text"],input[type="number"],select{
-  width:100%;padding:10px 10px;border:1px solid #bec8d8;border-radius:8px;background:#fff;color:var(--ink);font-size:16px
-}
-.score{width:60px!important;text-align:center;font-weight:700;font-size:18px!important}
-.small{font-size:12px;color:var(--muted)}
+.pool-editor{display:grid;grid-template-columns:40px 1fr;gap:9px;align-items:center}
+.pool-editor label{font-weight:800;text-align:center;color:var(--muted)}
+.section-title{display:flex;gap:8px;align-items:end;justify-content:space-between;margin:18px 0 9px}
+.section-title h2{margin:0;color:var(--blue);font-size:20px}
+.small,.note{font-size:12px;color:var(--muted)}
 table{width:100%;border-collapse:collapse}
-th,td{padding:8px 6px;border-bottom:1px solid #e7ebf2;text-align:center;font-size:13px}
+th,td{padding:8px 5px;border-bottom:1px solid #e7ebf2;text-align:center;font-size:13px}
 th{background:#f4f7fc;color:#44516a}
-td.team{text-align:left;font-weight:700}
-.rank1 td,.rank2 td{background:#f3f8ff}
-.rank1 td:first-child,.rank2 td:first-child{color:var(--blue);font-weight:800}
-.section-title{display:flex;align-items:end;justify-content:space-between;margin:20px 0 10px}
-.section-title h2{margin:0;color:var(--blue)}
+td.team{text-align:left;font-weight:800}
+.rank1 td,.rank2 td{background:#f2f7ff}
 .match-list{display:grid;gap:8px}
-.match{
-  display:grid;grid-template-columns:72px 1fr 58px 24px 58px 1fr;gap:8px;align-items:center;
-  background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 10px
-}
-.match .time{font-weight:800;color:var(--blue)}
-.match .teamA{text-align:right;font-weight:700}
-.match .teamB{text-align:left;font-weight:700}
-.match .dash{text-align:center;color:var(--muted)}
+.match{display:grid;grid-template-columns:64px 44px 1fr 62px 20px 62px 1fr;gap:7px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:11px;padding:9px 10px}
+.match .time{font-weight:900;color:var(--blue)}
+.badge{font-size:11px;font-weight:900;background:#eef3fc;color:var(--blue);border-radius:999px;padding:5px 7px;text-align:center}
+.match .teamA{text-align:right;font-weight:800}
+.match .teamB{text-align:left;font-weight:800}
+.score{width:62px!important;text-align:center;font-weight:900;font-size:18px!important}
+.dash{text-align:center;color:var(--muted)}
 .match.final{border-left:5px solid var(--orange)}
 .match.placement{border-left:5px solid var(--blue2)}
 .match.semifinal{border-left:5px solid var(--green)}
-.pause{background:#edf2f8;border:1px dashed #9aa8bc;border-radius:10px;padding:10px;text-align:center;font-weight:700;color:#4d5d74}
-.tie-select{grid-column:2/7;display:none;margin-top:4px}
-.tie-select.show{display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center}
-.status{padding:9px 12px;background:#eef6ff;border:1px solid #c9dcf7;border-radius:8px;margin-bottom:14px;font-size:13px}
+.match-label{grid-column:3/8;font-size:11px;color:var(--muted)}
+.pause{background:#edf2f8;border:1px dashed #9aa8bc;border-radius:10px;padding:10px;text-align:center;font-weight:800;color:#4d5d74}
+.tie-select{grid-column:3/8;display:grid;grid-template-columns:170px 1fr;gap:8px;align-items:center;margin-top:4px}
 .podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .podium div{border-radius:10px;padding:12px;background:#f6f8fc;text-align:center}
 .podium b{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
-.podium span{font-size:18px;font-weight:800;color:var(--blue)}
-.note{font-size:12px;color:var(--muted);line-height:1.45}
-
-.next-card{background:#fff7ee;border:2px solid #f1b078;border-radius:14px;padding:14px;margin-bottom:14px}
-.next-card .eyebrow{font-size:12px;font-weight:800;color:var(--orange);text-transform:uppercase}
-.nextline{display:grid;grid-template-columns:85px 1fr 30px 1fr;gap:8px;align-items:center;margin-top:8px}
-.ntime{font-size:22px;font-weight:800;color:var(--blue)}
-.nteam{font-size:18px;font-weight:800}
-.vs{text-align:center;color:var(--muted);font-weight:800}
+.podium span{font-size:18px;font-weight:900;color:var(--blue)}
 .bottom-save{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);border-top:1px solid var(--line);backdrop-filter:blur(8px)}
 .bottom-save button{width:100%;font-size:18px;padding:14px;background:var(--orange)}
 #displayOverlay{position:fixed;inset:0;z-index:100;background:#0d1d3e;color:#fff;display:none;overflow:auto;padding:16px}
 #displayOverlay.show{display:block}
 .display-inner{max-width:1100px;margin:auto}
 .display-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.display-top h2{margin:0;font-size:24px}
+.display-top h2{margin:0}
 .display-next{margin:18px 0;background:#fff;color:var(--ink);border-radius:18px;padding:20px;text-align:center}
-.display-next .label{color:var(--orange);font-weight:800;text-transform:uppercase}
-.display-next .time{font-size:38px;font-weight:800;color:var(--blue);margin:6px 0 12px}
-.display-next .teams{display:grid;grid-template-columns:1fr 60px 1fr;gap:10px;align-items:center}
-.display-next .teams span{font-size:30px;font-weight:800}
-.display-next .teams b{font-size:20px;color:var(--muted)}
+.display-next .time{font-size:38px;font-weight:900;color:var(--blue);margin:6px 0 12px}
 .display-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.display-grid .card{box-shadow:none}
+@media(max-width:900px){
+  .config{grid-template-columns:1fr 1fr}
+  .summary{grid-column:1/3;grid-template-columns:repeat(3,1fr)}
+}
 @media(max-width:800px){
+  .grid2{grid-template-columns:1fr}
   .toolbar button,.toolbar .filebtn{flex:1 1 145px;text-align:center}
-  .nextline{grid-template-columns:70px 1fr 28px 1fr}
+  .match{grid-template-columns:52px 36px 1fr 54px 14px 54px 1fr;gap:4px;padding:8px 6px}
+  .score{width:54px!important}
+  .next-matches{grid-template-columns:1fr}
   .display-grid{grid-template-columns:1fr}
-  .display-next .teams span{font-size:22px}
 }
 @media(max-width:520px){
   .wrap{padding:10px}
+  .config{grid-template-columns:1fr}
+  .summary{grid-column:auto;grid-template-columns:1fr 1fr}
   .section-title{align-items:flex-start;flex-direction:column}
-  .nextline{grid-template-columns:1fr 28px 1fr}
-  .ntime{grid-column:1/4;font-size:24px}
-  .nteam{font-size:16px}
-}
-
-@media(max-width:800px){
-  .grid2{grid-template-columns:1fr}
-  .match{grid-template-columns:54px 1fr 48px 16px 48px 1fr;font-size:12px}
-  .match .teamA,.match .teamB{font-size:12px}
+  th,td{font-size:11px;padding:6px 3px}
+  .match{grid-template-columns:46px 32px 1fr 48px 10px 48px 1fr}
+  .match .teamA,.match .teamB{font-size:11px}
+  .score{width:48px!important;padding:7px 3px}
+  .badge{padding:4px 3px;font-size:10px}
+  .tie-select{grid-template-columns:1fr}
 }
 @media print{
   .toolbar,.status,.bottom-save,#displayOverlay{display:none!important}
@@ -115,12 +116,12 @@ td.team{text-align:left;font-weight:700}
 <body>
 <header>
   <h1>Tournoi de rugby à 5 – Gestion dynamique</h1>
-  <p>8 équipes • 2 poules de 4 • 1 terrain • Poules + phases finales • 14 h → ~17 h 46</p>
+  <p id="headerInfo">Configuration du tournoi</p>
 </header>
 
 <div class="wrap">
   <div class="toolbar">
-    <button onclick="exportData()">💾 Sauvegarder</button>
+    <button class="orange" onclick="exportData()">💾 Sauvegarder</button>
     <label class="filebtn secondary">📂 Importer<input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)"></label>
     <button class="secondary" onclick="openDisplayMode()">📺 Mode affichage</button>
     <button class="secondary" onclick="window.print()">🖨️ Imprimer / PDF</button>
@@ -129,25 +130,42 @@ td.team{text-align:left;font-weight:700}
 
   <div class="status" id="saveStatus">Les données sont enregistrées automatiquement sur cet appareil.</div>
 
-  <div class="next-card">
-    <div class="eyebrow">Prochain match</div>
-    <div class="nextline">
-      <div class="ntime" id="nextTime">—</div>
-      <div class="nteam" id="nextA">—</div>
-      <div class="vs">VS</div>
-      <div class="nteam" id="nextB">—</div>
+  <div class="card config">
+    <div>
+      <label for="teamCount">Nombre d'équipes</label>
+      <select id="teamCount" onchange="changeConfig()">
+        <option value="8">8 équipes – 2 poules de 4</option>
+        <option value="10">10 équipes – 2 poules de 5</option>
+      </select>
+    </div>
+    <div>
+      <label for="poolTerrains">Terrains pendant les poules</label>
+      <select id="poolTerrains" onchange="changeConfig()">
+        <option value="1">1 terrain</option>
+        <option value="2">2 terrains</option>
+      </select>
+      <p class="note">Les phases finales se jouent toujours sur 1 seul terrain.</p>
+    </div>
+    <div class="summary">
+      <div><b>Matchs de poule</b><span id="sumPool">—</span></div>
+      <div><b>Poules terminées</b><span id="sumPoolEnd">—</span></div>
+      <div><b>Fin tournoi</b><span id="sumEnd">—</span></div>
+      <div><b>Matchs max / équipe</b><span id="sumMaxMatches">—</span></div>
+      <div><b>Repos min en poule</b><span id="sumRest">—</span></div>
     </div>
   </div>
 
+  <div class="warning" id="warningBox"></div>
+
+  <div class="next-card">
+    <div class="eyebrow">Prochain créneau</div>
+    <div class="next-time" id="nextTime">—</div>
+    <div class="next-matches" id="nextMatches"></div>
+  </div>
+
   <div class="grid2">
-    <div class="card">
-      <h2>Poule A</h2>
-      <div class="pool-editor" id="poolAEditor"></div>
-    </div>
-    <div class="card">
-      <h2>Poule B</h2>
-      <div class="pool-editor" id="poolBEditor"></div>
-    </div>
+    <div class="card"><h2>Poule A</h2><div class="pool-editor" id="poolAEditor"></div></div>
+    <div class="card"><h2>Poule B</h2><div class="pool-editor" id="poolBEditor"></div></div>
   </div>
 
   <div class="section-title"><h2>Classements en direct</h2><span class="small">3 pts victoire • 1 pt nul • 0 pt défaite</span></div>
@@ -156,10 +174,10 @@ td.team{text-align:left;font-weight:700}
     <div class="card"><h2>Poule B</h2><div id="tableB"></div></div>
   </div>
 
-  <div class="section-title"><h2>Matchs de poule</h2><span class="small">Créneaux de 12 min : ~10 min de jeu + rotation</span></div>
+  <div class="section-title"><h2>Matchs de poule</h2><span class="small">10 min de jeu + 2 min de rotation</span></div>
   <div class="match-list" id="poolMatches"></div>
 
-  <div class="section-title"><h2>Phases finales</h2><span class="small">Les équipes se placent automatiquement selon les classements</span></div>
+  <div class="section-title"><h2>Phases finales – 1 terrain</h2><span class="small">Classements + demi-finales + matchs de classement + finale</span></div>
   <div class="match-list" id="finalMatches"></div>
 
   <div class="section-title"><h2>Podium</h2></div>
@@ -169,23 +187,19 @@ td.team{text-align:left;font-weight:700}
       <div><b>🥈 Finaliste</b><span id="podium2">—</span></div>
       <div><b>🥉 3e place</b><span id="podium3">—</span></div>
     </div>
-    <p class="note">En cas d’égalité parfaite au classement d’une poule : points, différence de points, points marqués, puis ordre alphabétique. Pour un match à élimination directe terminé à égalité, choisissez manuellement l’équipe qualifiée/gagnante dans la liste qui apparaît sous le match.</p>
+    <p class="note">Départage des poules : points, différence de points, points marqués, puis ordre alphabétique. En cas d'égalité dans un match de phase finale, choisissez manuellement l'équipe qualifiée/gagnante.</p>
   </div>
 </div>
-
 
 <div class="bottom-save"><button onclick="exportData()">💾 Sauvegarder le tournoi</button></div>
 
 <div id="displayOverlay">
   <div class="display-inner">
-    <div class="display-top">
-      <h2>Affichage tournoi</h2>
-      <button onclick="closeDisplayMode()">Fermer</button>
-    </div>
+    <div class="display-top"><h2>Affichage tournoi</h2><button class="orange" onclick="closeDisplayMode()">Fermer</button></div>
     <div class="display-next">
-      <div class="label">Prochain match</div>
+      <div class="eyebrow">Prochain créneau</div>
       <div class="time" id="displayTime">—</div>
-      <div class="teams"><span id="displayA">—</span><b>VS</b><span id="displayB">—</span></div>
+      <div class="next-matches" id="displayNextMatches"></div>
     </div>
     <div class="display-grid">
       <div class="card"><h2>Classement Poule A</h2><div id="displayTableA"></div></div>
@@ -195,309 +209,318 @@ td.team{text-align:left;font-weight:700}
 </div>
 
 <script>
-const STORAGE_KEY = "rugby5_azereix_formula1_mobile_v2";
+const STORAGE_KEY="rugby5_azereix_v4";
+const START_MIN=14*60, PLAY_MIN=10, SLOT_MIN=12, PAUSE_BEFORE_FINALS=12;
 
-const state = {
-  teams: {
-    A:["Équipe A1","Équipe A2","Équipe A3","Équipe A4"],
-    B:["Équipe B1","Équipe B2","Équipe B3","Équipe B4"]
-  },
+let state={
+  teamCount:10,
+  poolTerrains:2,
+  teams:{A:["Équipe A1","Équipe A2","Équipe A3","Équipe A4","Équipe A5"],B:["Équipe B1","Équipe B2","Équipe B3","Équipe B4","Équipe B5"]},
   scores:{},
   tieWinners:{}
 };
+let poolSchedule=[], finalSchedule=[];
 
-const poolSchedule = [
-  {id:"P1",time:"14:00",pool:"A",a:0,b:1},
-  {id:"P2",time:"14:12",pool:"B",a:0,b:1},
-  {id:"P3",time:"14:24",pool:"A",a:2,b:3},
-  {id:"P4",time:"14:36",pool:"B",a:2,b:3},
-  {id:"P5",time:"14:48",pool:"A",a:0,b:2},
-  {id:"P6",time:"15:00",pool:"B",a:0,b:2},
-  {id:"P7",time:"15:12",pool:"A",a:1,b:3},
-  {id:"P8",time:"15:24",pool:"B",a:1,b:3},
-  {id:"P9",time:"15:36",pool:"A",a:0,b:3},
-  {id:"P10",time:"15:48",pool:"B",a:0,b:3},
-  {id:"P11",time:"16:00",pool:"A",a:1,b:2},
-  {id:"P12",time:"16:12",pool:"B",a:1,b:2}
-];
-
-const finalSchedule = [
-  {id:"SF1",time:"16:36",type:"semifinal",label:"Demi-finale 1"},
-  {id:"SF2",time:"16:48",type:"semifinal",label:"Demi-finale 2"},
-  {id:"M78",time:"17:00",type:"placement",label:"7e / 8e place"},
-  {id:"M56",time:"17:12",type:"placement",label:"5e / 6e place"},
-  {id:"M34",time:"17:24",type:"placement",label:"Petite finale"},
-  {id:"FIN",time:"17:36",type:"final",label:"Finale"}
-];
-
-function cloneDefault(){
+function freshState(teamCount=10,poolTerrains=2){
+  const n=teamCount/2;
   return {
-    teams:{A:["Équipe A1","Équipe A2","Équipe A3","Équipe A4"],B:["Équipe B1","Équipe B2","Équipe B3","Équipe B4"]},
-    scores:{}, tieWinners:{}
+    teamCount:Number(teamCount),poolTerrains:Number(poolTerrains),
+    teams:{A:Array.from({length:n},(_,i)=>`Équipe A${i+1}`),B:Array.from({length:n},(_,i)=>`Équipe B${i+1}`)},
+    scores:{},tieWinners:{}
   };
 }
-
+function timeText(m){const h=Math.floor(m/60),min=m%60;return String(h).padStart(2,"0")+":"+String(min).padStart(2,"0")}
 function load(){
   try{
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if(saved){
-      state.teams = saved.teams || state.teams;
-      state.scores = saved.scores || {};
-      state.tieWinners = saved.tieWinners || {};
+    const d=JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(d&&[8,10].includes(Number(d.teamCount))&&[1,2].includes(Number(d.poolTerrains))){
+      state=d;state.teamCount=Number(state.teamCount);state.poolTerrains=Number(state.poolTerrains);state.tieWinners=state.tieWinners||{};
     }
   }catch(e){}
 }
+function save(msg){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  const el=document.getElementById("saveStatus");
+  el.textContent=msg||("Enregistré automatiquement à "+new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"}));
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
+function num(v){if(v===undefined||v===null||v==="")return null;const n=Number(v);return Number.isFinite(n)?n:null}
+function scoreOf(id){const s=state.scores[id]||{};return {a:num(s.a),b:num(s.b)}}
 
-function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  const s=document.getElementById("saveStatus");
-  s.textContent="Enregistré automatiquement à " + new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+function roundsFor(n){
+  if(n===4){
+    return [
+      [[0,3],[1,2]],
+      [[0,2],[3,1]],
+      [[0,1],[2,3]]
+    ];
+  }
+  return [
+    [[1,4],[2,3]],       // bye 0
+    [[0,4],[1,2]],       // bye 3
+    [[0,3],[4,2]],       // bye 1
+    [[0,2],[3,1]],       // bye 4
+    [[0,1],[3,4]]        // bye 2
+  ];
 }
 
-function num(v){
-  if(v===undefined || v===null || v==="") return null;
-  const n=Number(v); return Number.isFinite(n)?n:null;
+function buildSchedules(){
+  poolSchedule=[];finalSchedule=[];
+  const n=state.teamCount/2, rounds=roundsFor(n);
+  let t=START_MIN, idn=1;
+
+  if(state.poolTerrains===2){
+    for(let r=0;r<rounds.length;r++){
+      for(const pool of ["A","B"]){
+        rounds[r].forEach((pair,j)=>{
+          poolSchedule.push({id:`P${idn++}`,time:timeText(t),start:t,pool,a:pair[0],b:pair[1],terrain:j+1});
+        });
+        t+=SLOT_MIN;
+      }
+    }
+  }else{
+    for(let r=0;r<rounds.length;r++){
+      for(let j=0;j<2;j++){
+        for(const pool of ["A","B"]){
+          const pair=rounds[r][j];
+          poolSchedule.push({id:`P${idn++}`,time:timeText(t),start:t,pool,a:pair[0],b:pair[1],terrain:1});
+          t+=SLOT_MIN;
+        }
+      }
+    }
+  }
+
+  const poolEnd=t;
+  const finalsStart=poolEnd+PAUSE_BEFORE_FINALS;
+  let ft=finalsStart;
+  const add=(id,label,type)=>{finalSchedule.push({id,time:timeText(ft),start:ft,terrain:1,label,type});ft+=SLOT_MIN};
+  add("SF1","Demi-finale 1 : 1A – 2B","semifinal");
+  add("SF2","Demi-finale 2 : 1B – 2A","semifinal");
+  if(state.teamCount===10)add("M910","9e / 10e place : 5A – 5B","placement");
+  add("M78","7e / 8e place : 4A – 4B","placement");
+  add("M56","5e / 6e place : 3A – 3B","placement");
+  add("M34","Petite finale","placement");
+  add("FIN","Finale","final");
+  return {poolEnd,finalsStart,end:ft};
 }
 
-function scoreOf(id){
-  const s=state.scores[id]||{};
-  return {a:num(s.a),b:num(s.b)};
+function minPoolRest(){
+  const byTeam={};
+  for(const p of ["A","B"]){
+    state.teams[p].forEach((_,i)=>byTeam[`${p}${i}`]=[]);
+  }
+  poolSchedule.forEach(m=>{
+    byTeam[`${m.pool}${m.a}`].push(m.start);
+    byTeam[`${m.pool}${m.b}`].push(m.start);
+  });
+  let min=Infinity;
+  Object.values(byTeam).forEach(times=>{
+    times.sort((a,b)=>a-b);
+    for(let i=1;i<times.length;i++) min=Math.min(min,times[i]-times[i-1]-PLAY_MIN);
+  });
+  return Number.isFinite(min)?min:0;
+}
+
+function updateSummary(){
+  const x=buildSchedules();
+  const maxMatches=(state.teamCount/2-1)+2;
+  document.getElementById("sumPool").textContent=poolSchedule.length;
+  document.getElementById("sumPoolEnd").textContent=timeText(x.poolEnd);
+  document.getElementById("sumEnd").textContent=timeText(x.end);
+  document.getElementById("sumMaxMatches").textContent=`${maxMatches} (${maxMatches*PLAY_MIN} min)`;
+  document.getElementById("sumRest").textContent=minPoolRest()+" min";
+  document.getElementById("headerInfo").textContent=`${state.teamCount} équipes • 2 poules de ${state.teamCount/2} • ${state.poolTerrains} terrain${state.poolTerrains>1?"s":""} en poules • 1 terrain en phases finales`;
+
+  const w=document.getElementById("warningBox");
+  if(state.poolTerrains===1&&state.teamCount===10){
+    w.className="warning show";
+    w.innerHTML=`Avec <b>10 équipes sur 1 terrain en poules</b>, les 20 matchs de poule vont jusqu'à <b>${timeText(x.poolEnd)}</b> et le tournoi complet jusqu'à <b>${timeText(x.end)}</b>. Pour finir avant 18 h, privilégiez 2 terrains pendant les poules.`;
+  }else{
+    w.className="warning";w.innerHTML="";
+  }
+}
+
+function changeConfig(){
+  const tc=Number(document.getElementById("teamCount").value);
+  const pt=Number(document.getElementById("poolTerrains").value);
+  if(tc===state.teamCount&&pt===state.poolTerrains)return;
+  if(tc!==state.teamCount){
+    if(!confirm(`Passer à ${tc} équipes ? Les noms d'équipes et les scores seront réinitialisés.`)){
+      document.getElementById("teamCount").value=String(state.teamCount);
+      document.getElementById("poolTerrains").value=String(state.poolTerrains);
+      return;
+    }
+    state=freshState(tc,pt);
+  }else{
+    state.poolTerrains=pt;
+    state.scores={};state.tieWinners={};
+  }
+  save("Configuration modifiée.");renderAll();
 }
 
 function renderEditors(){
-  ["A","B"].forEach(pool=>{
-    const el=document.getElementById("pool"+pool+"Editor");
-    el.innerHTML="";
+  document.getElementById("teamCount").value=String(state.teamCount);
+  document.getElementById("poolTerrains").value=String(state.poolTerrains);
+  for(const pool of ["A","B"]){
+    const el=document.getElementById("pool"+pool+"Editor");el.innerHTML="";
     state.teams[pool].forEach((name,i)=>{
-      const lab=document.createElement("label");
-      lab.textContent=pool+(i+1);
-      const inp=document.createElement("input");
-      inp.type="text"; inp.value=name;
-      inp.oninput=()=>{state.teams[pool][i]=inp.value || (pool+(i+1)); save(); renderAllExceptEditors();};
+      const lab=document.createElement("label");lab.textContent=pool+(i+1);
+      const inp=document.createElement("input");inp.type="text";inp.value=name;
+      inp.oninput=()=>{state.teams[pool][i]=inp.value||`${pool}${i+1}`;save();renderDynamic()};
       el.append(lab,inp);
     });
-  });
+  }
 }
 
 function standings(pool){
   const rows=state.teams[pool].map((name,i)=>({idx:i,name,j:0,g:0,n:0,p:0,pm:0,pe:0,diff:0,pts:0}));
   poolSchedule.filter(m=>m.pool===pool).forEach(m=>{
-    const sc=scoreOf(m.id);
-    if(sc.a===null || sc.b===null) return;
-    const A=rows[m.a], B=rows[m.b];
-    A.j++;B.j++;A.pm+=sc.a;A.pe+=sc.b;B.pm+=sc.b;B.pe+=sc.a;
-    if(sc.a>sc.b){A.g++;B.p++;A.pts+=3;}
-    else if(sc.a<sc.b){B.g++;A.p++;B.pts+=3;}
-    else{A.n++;B.n++;A.pts++;B.pts++;}
+    const sc=scoreOf(m.id);if(sc.a===null||sc.b===null)return;
+    const A=rows[m.a],B=rows[m.b];A.j++;B.j++;A.pm+=sc.a;A.pe+=sc.b;B.pm+=sc.b;B.pe+=sc.a;
+    if(sc.a>sc.b){A.g++;B.p++;A.pts+=3}else if(sc.a<sc.b){B.g++;A.p++;B.pts+=3}else{A.n++;B.n++;A.pts++;B.pts++}
   });
   rows.forEach(r=>r.diff=r.pm-r.pe);
-  rows.sort((x,y)=> y.pts-x.pts || y.diff-x.diff || y.pm-x.pm || x.name.localeCompare(y.name,"fr"));
+  rows.sort((x,y)=>y.pts-x.pts||y.diff-x.diff||y.pm-x.pm||x.name.localeCompare(y.name,"fr"));
   return rows;
 }
-
-function renderTable(pool){
+function tableHTML(pool){
   const rows=standings(pool);
-  let html="<table><thead><tr><th>#</th><th style='text-align:left'>Équipe</th><th>J</th><th>G</th><th>N</th><th>P</th><th>+</th><th>-</th><th>Diff</th><th>Pts</th></tr></thead><tbody>";
-  rows.forEach((r,i)=>{
-    html+=`<tr class="${i<2?'rank'+(i+1):''}"><td>${i+1}</td><td class="team">${esc(r.name)}</td><td>${r.j}</td><td>${r.g}</td><td>${r.n}</td><td>${r.p}</td><td>${r.pm}</td><td>${r.pe}</td><td>${r.diff>0?'+':''}${r.diff}</td><td><b>${r.pts}</b></td></tr>`;
-  });
-  html+="</tbody></table>";
-  document.getElementById("table"+pool).innerHTML=html;
-  const display=document.getElementById("displayTable"+pool);
-  if(display) display.innerHTML=html;
+  let h="<table><thead><tr><th>#</th><th style='text-align:left'>Équipe</th><th>J</th><th>G</th><th>N</th><th>P</th><th>+</th><th>-</th><th>Diff</th><th>Pts</th></tr></thead><tbody>";
+  rows.forEach((r,i)=>h+=`<tr class="${i<2?'rank'+(i+1):''}"><td>${i+1}</td><td class="team">${esc(r.name)}</td><td>${r.j}</td><td>${r.g}</td><td>${r.n}</td><td>${r.p}</td><td>${r.pm}</td><td>${r.pe}</td><td>${r.diff>0?'+':''}${r.diff}</td><td><b>${r.pts}</b></td></tr>`);
+  return h+"</tbody></table>";
 }
-
+function renderTables(){
+  for(const p of ["A","B"]){
+    const h=tableHTML(p);
+    document.getElementById("table"+p).innerHTML=h;
+    document.getElementById("displayTable"+p).innerHTML=h;
+  }
+}
 function scoreInput(id,side,value){
   return `<input class="score" inputmode="numeric" pattern="[0-9]*" type="number" min="0" step="1" value="${value??''}" oninput="setScore('${id}','${side}',this.value)">`;
 }
-
 function renderPoolMatches(){
-  const box=document.getElementById("poolMatches"); box.innerHTML="";
+  const box=document.getElementById("poolMatches");box.innerHTML="";
   poolSchedule.forEach(m=>{
-    const sc=scoreOf(m.id);
-    const d=document.createElement("div"); d.className="match";
-    d.innerHTML=`<div class="time">${m.time}</div><div class="teamA">${esc(state.teams[m.pool][m.a])}</div>${scoreInput(m.id,'a',sc.a)}<div class="dash">–</div>${scoreInput(m.id,'b',sc.b)}<div class="teamB">${esc(state.teams[m.pool][m.b])}</div>`;
+    const sc=scoreOf(m.id),d=document.createElement("div");d.className="match";
+    d.innerHTML=`<div class="time">${m.time}</div><div class="badge">T${m.terrain}</div><div class="teamA">${esc(state.teams[m.pool][m.a])}</div>${scoreInput(m.id,'a',sc.a)}<div class="dash">–</div>${scoreInput(m.id,'b',sc.b)}<div class="teamB">${esc(state.teams[m.pool][m.b])}</div>`;
     box.appendChild(d);
   });
-  const p=document.createElement("div"); p.className="pause"; p.textContent="16:24 → 16:36 • Classements / pause";
+  const x=buildSchedules(),p=document.createElement("div");p.className="pause";
+  p.textContent=`${timeText(x.poolEnd)} → ${timeText(x.finalsStart)} • Classements / pause • puis phases finales sur Terrain 1`;
   box.appendChild(p);
 }
 
-function finalistTeams(){
-  const A=standings("A"), B=standings("B");
-  return {
+function baseFinalTeams(){
+  const A=standings("A"),B=standings("B");
+  const o={
     SF1:[A[0]?.name||"1er A",B[1]?.name||"2e B"],
     SF2:[B[0]?.name||"1er B",A[1]?.name||"2e A"],
-    M78:[A[3]?.name||"4e A",B[3]?.name||"4e B"],
-    M56:[A[2]?.name||"3e A",B[2]?.name||"3e B"]
+    M56:[A[2]?.name||"3e A",B[2]?.name||"3e B"],
+    M78:[A[3]?.name||"4e A",B[3]?.name||"4e B"]
   };
+  if(state.teamCount===10)o.M910=[A[4]?.name||"5e A",B[4]?.name||"5e B"];
+  return o;
 }
-
 function getWinner(id,teams){
-  const sc=scoreOf(id);
-  if(sc.a===null || sc.b===null) return null;
-  if(sc.a>sc.b) return teams[0];
-  if(sc.b>sc.a) return teams[1];
-  const tw=state.tieWinners[id];
-  if(tw==="a") return teams[0];
-  if(tw==="b") return teams[1];
-  return null;
+  const sc=scoreOf(id);if(sc.a===null||sc.b===null)return null;
+  if(sc.a>sc.b)return teams[0];if(sc.b>sc.a)return teams[1];
+  const t=state.tieWinners[id];return t==="a"?teams[0]:t==="b"?teams[1]:null;
 }
-function getLoser(id,teams){
-  const w=getWinner(id,teams);
-  if(!w) return null;
-  return w===teams[0]?teams[1]:teams[0];
-}
-
+function getLoser(id,teams){const w=getWinner(id,teams);return !w?null:(w===teams[0]?teams[1]:teams[0])}
 function currentFinalTeams(){
-  const base=finalistTeams();
-  const sf1=base.SF1, sf2=base.SF2;
-  const w1=getWinner("SF1",sf1), w2=getWinner("SF2",sf2);
-  const l1=getLoser("SF1",sf1), l2=getLoser("SF2",sf2);
-  return {
-    ...base,
-    M34:[l1||"Perdant DF1",l2||"Perdant DF2"],
-    FIN:[w1||"Vainqueur DF1",w2||"Vainqueur DF2"]
-  };
+  const b=baseFinalTeams(),w1=getWinner("SF1",b.SF1),w2=getWinner("SF2",b.SF2),l1=getLoser("SF1",b.SF1),l2=getLoser("SF2",b.SF2);
+  return {...b,M34:[l1||"Perdant DF1",l2||"Perdant DF2"],FIN:[w1||"Vainqueur DF1",w2||"Vainqueur DF2"]};
 }
-
 function tieSelector(id,teams){
-  const sc=scoreOf(id);
-  if(sc.a===null || sc.b===null || sc.a!==sc.b) return "";
-  const val=state.tieWinners[id]||"";
-  return `<div class="tie-select show"><label>Équipe qualifiée / gagnante :</label>
-    <select onchange="setTieWinner('${id}',this.value)">
-      <option value="">Choisir…</option>
-      <option value="a" ${val==="a"?"selected":""}>${esc(teams[0])}</option>
-      <option value="b" ${val==="b"?"selected":""}>${esc(teams[1])}</option>
-    </select></div>`;
+  const sc=scoreOf(id);if(sc.a===null||sc.b===null||sc.a!==sc.b)return "";
+  const v=state.tieWinners[id]||"";
+  return `<div class="tie-select"><label>Équipe qualifiée / gagnante :</label><select onchange="setTieWinner('${id}',this.value)"><option value="">Choisir…</option><option value="a" ${v==='a'?'selected':''}>${esc(teams[0])}</option><option value="b" ${v==='b'?'selected':''}>${esc(teams[1])}</option></select></div>`;
 }
-
 function renderFinalMatches(){
-  const teams=currentFinalTeams();
-  const box=document.getElementById("finalMatches"); box.innerHTML="";
+  const teams=currentFinalTeams(),box=document.getElementById("finalMatches");box.innerHTML="";
   finalSchedule.forEach(m=>{
-    const pair=teams[m.id];
-    const sc=scoreOf(m.id);
-    const d=document.createElement("div"); d.className="match "+m.type;
-    d.innerHTML=`<div class="time">${m.time}</div><div class="teamA">${esc(pair[0])}</div>${scoreInput(m.id,'a',sc.a)}<div class="dash">–</div>${scoreInput(m.id,'b',sc.b)}<div class="teamB">${esc(pair[1])}</div>${tieSelector(m.id,pair)}`;
-    const tag=document.createElement("div");
-    tag.style.gridColumn="2/7"; tag.style.fontSize="11px"; tag.style.color="#697386"; tag.textContent=m.label;
-    d.appendChild(tag);
+    const pair=teams[m.id],sc=scoreOf(m.id),d=document.createElement("div");d.className="match "+m.type;
+    d.innerHTML=`<div class="time">${m.time}</div><div class="badge">T1</div><div class="teamA">${esc(pair[0])}</div>${scoreInput(m.id,'a',sc.a)}<div class="dash">–</div>${scoreInput(m.id,'b',sc.b)}<div class="teamB">${esc(pair[1])}</div>${tieSelector(m.id,pair)}<div class="match-label">${m.label}</div>`;
     box.appendChild(d);
   });
   renderPodium(teams);
 }
-
 function renderPodium(teams){
-  const fw=getWinner("FIN",teams.FIN), fl=getLoser("FIN",teams.FIN);
-  const tw=getWinner("M34",teams.M34);
-  document.getElementById("podium1").textContent=fw||"—";
-  document.getElementById("podium2").textContent=fl||"—";
-  document.getElementById("podium3").textContent=tw||"—";
+  document.getElementById("podium1").textContent=getWinner("FIN",teams.FIN)||"—";
+  document.getElementById("podium2").textContent=getLoser("FIN",teams.FIN)||"—";
+  document.getElementById("podium3").textContent=getWinner("M34",teams.M34)||"—";
 }
 
-
-function nextMatch(){
-  for(const m of poolSchedule){
-    const sc=scoreOf(m.id);
-    if(sc.a===null || sc.b===null){
-      return {time:m.time,a:state.teams[m.pool][m.a],b:state.teams[m.pool][m.b]};
-    }
+function nextSlot(){
+  const pendingPools=poolSchedule.filter(m=>{const s=scoreOf(m.id);return s.a===null||s.b===null});
+  if(pendingPools.length){
+    const start=Math.min(...pendingPools.map(m=>m.start));
+    return {time:timeText(start),matches:pendingPools.filter(m=>m.start===start).map(m=>({terrain:m.terrain,a:state.teams[m.pool][m.a],b:state.teams[m.pool][m.b]}))};
   }
   const teams=currentFinalTeams();
   for(const m of finalSchedule){
-    const sc=scoreOf(m.id);
-    if(sc.a===null || sc.b===null){
-      const p=teams[m.id];
-      return {time:m.time,a:p[0],b:p[1]};
-    }
+    const s=scoreOf(m.id);
+    if(s.a===null||s.b===null)return {time:m.time,matches:[{terrain:1,a:teams[m.id][0],b:teams[m.id][1]}]};
   }
-  return {time:"Terminé",a:"Tournoi",b:"terminé"};
+  return {time:"Terminé",matches:[{terrain:1,a:"Tournoi",b:"terminé"}]};
 }
-
 function renderNext(){
-  const n=nextMatch();
-  ["nextTime","displayTime"].forEach(id=>{const e=document.getElementById(id); if(e)e.textContent=n.time;});
-  ["nextA","displayA"].forEach(id=>{const e=document.getElementById(id); if(e)e.textContent=n.a;});
-  ["nextB","displayB"].forEach(id=>{const e=document.getElementById(id); if(e)e.textContent=n.b;});
+  const n=nextSlot();
+  document.getElementById("nextTime").textContent=n.time;
+  document.getElementById("displayTime").textContent=n.time;
+  const h=n.matches.map(m=>`<div class="next-match"><span class="terrain">Terrain ${m.terrain}</span>${esc(m.a)} &nbsp;–&nbsp; ${esc(m.b)}</div>`).join("");
+  document.getElementById("nextMatches").innerHTML=h;
+  document.getElementById("displayNextMatches").innerHTML=h;
 }
-
-function openDisplayMode(){
-  document.getElementById("displayOverlay").classList.add("show");
-  renderNext(); renderTable("A"); renderTable("B");
-  if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-}
-
-function closeDisplayMode(){
-  document.getElementById("displayOverlay").classList.remove("show");
-  if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
-}
-
 function setScore(id,side,value){
-  if(!state.scores[id]) state.scores[id]={a:"",b:""};
+  if(!state.scores[id])state.scores[id]={a:"",b:""};
   state.scores[id][side]=value;
-  const sc=scoreOf(id);
-  if(sc.a!==null && sc.b!==null && sc.a!==sc.b) delete state.tieWinners[id];
-  save();
-  renderTablesAndFinals();
-  renderNext();
+  const sc=scoreOf(id);if(sc.a!==null&&sc.b!==null&&sc.a!==sc.b)delete state.tieWinners[id];
+  save();renderDynamic();
 }
-function setTieWinner(id,val){
-  if(val) state.tieWinners[id]=val; else delete state.tieWinners[id];
-  save(); renderFinalMatches(); renderNext();
-}
-
-function renderTablesAndFinals(){
-  renderTable("A"); renderTable("B"); renderFinalMatches();
-}
-function renderAllExceptEditors(){
-  renderTable("A"); renderTable("B"); renderPoolMatches(); renderFinalMatches(); renderNext();
-}
-function renderAll(){
-  renderEditors(); renderAllExceptEditors();
-}
+function setTieWinner(id,v){if(v)state.tieWinners[id]=v;else delete state.tieWinners[id];save();renderDynamic()}
+function renderDynamic(){buildSchedules();renderTables();renderPoolMatches();renderFinalMatches();renderNext();updateSummary()}
+function renderAll(){buildSchedules();renderEditors();renderDynamic()}
 
 function resetTournament(){
-  if(!confirm("Effacer tous les noms d'équipes et tous les scores ?")) return;
-  const d=cloneDefault();
-  state.teams=d.teams; state.scores={}; state.tieWinners={};
-  save(); renderAll();
+  if(!confirm("Effacer tous les noms d'équipes et tous les scores ?"))return;
+  state=freshState(state.teamCount,state.poolTerrains);save("Tournoi réinitialisé.");renderAll();
 }
-
 function exportData(){
-  const d=new Date(), p=n=>String(n).padStart(2,"0");
-  const stamp=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=`sauvegarde_tournoi_rugby5_${stamp}.json`;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
-  document.getElementById("saveStatus").textContent="Sauvegarde exportée : conservez le fichier JSON dans vos téléchargements / Fichiers.";
+  const d=new Date(),p=n=>String(n).padStart(2,"0"),stamp=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=`sauvegarde_tournoi_rugby5_${state.teamCount}equipes_${state.poolTerrains}terrains_${stamp}.json`;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  save("Sauvegarde exportée : conservez le fichier JSON.");
 }
-
 function importData(event){
-  const file=event.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=()=>{
+  const file=event.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=()=>{
     try{
-      const d=JSON.parse(reader.result);
-      if(!d.teams || !d.scores) throw new Error();
-      state.teams=d.teams; state.scores=d.scores||{}; state.tieWinners=d.tieWinners||{};
-      save(); renderAll(); document.getElementById("saveStatus").textContent="Sauvegarde importée avec succès : "+file.name;
+      const d=JSON.parse(r.result);
+      if(!d.teams||!d.scores)throw new Error();
+      d.teamCount=Number(d.teamCount||(d.teams.A.length+d.teams.B.length));
+      d.poolTerrains=Number(d.poolTerrains||1);
+      if(![8,10].includes(d.teamCount)||![1,2].includes(d.poolTerrains))throw new Error();
+      state=d;state.tieWinners=state.tieWinners||{};
+      save("Sauvegarde importée : "+file.name);renderAll();
     }catch(e){alert("Fichier de sauvegarde non valide.");}
     event.target.value="";
   };
-  reader.readAsText(file);
+  r.readAsText(file);
 }
-function esc(s){
-  return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+function openDisplayMode(){
+  document.getElementById("displayOverlay").classList.add("show");renderDynamic();
+  if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
+}
+function closeDisplayMode(){
+  document.getElementById("displayOverlay").classList.remove("show");
+  if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
 }
 
-load();
-renderAll();
+load();renderAll();
 </script>
 </body>
 </html>
