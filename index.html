@@ -604,15 +604,33 @@ function renderPoolMatches(){
   box.appendChild(p);
 }
 
+function poolPhaseComplete(){
+  return poolSchedule.every(m=>{
+    const sc=scoreOf(m.id);
+    return sc.a!==null && sc.b!==null;
+  });
+}
+
 function baseFinalTeams(){
+  if(!poolPhaseComplete()){
+    const o={
+      SF1:["1er Poule A","2e Poule B"],
+      SF2:["1er Poule B","2e Poule A"],
+      M56:["3e Poule A","3e Poule B"],
+      M78:["4e Poule A","4e Poule B"]
+    };
+    if(state.teamCount===10)o.M910=["5e Poule A","5e Poule B"];
+    return o;
+  }
+
   const A=standings("A"),B=standings("B");
   const o={
-    SF1:[A[0]?.name||"1er A",B[1]?.name||"2e B"],
-    SF2:[B[0]?.name||"1er B",A[1]?.name||"2e A"],
-    M56:[A[2]?.name||"3e A",B[2]?.name||"3e B"],
-    M78:[A[3]?.name||"4e A",B[3]?.name||"4e B"]
+    SF1:[A[0]?.name||"1er Poule A",B[1]?.name||"2e Poule B"],
+    SF2:[B[0]?.name||"1er Poule B",A[1]?.name||"2e Poule A"],
+    M56:[A[2]?.name||"3e Poule A",B[2]?.name||"3e Poule B"],
+    M78:[A[3]?.name||"4e Poule A",B[3]?.name||"4e Poule B"]
   };
-  if(state.teamCount===10)o.M910=[A[4]?.name||"5e A",B[4]?.name||"5e B"];
+  if(state.teamCount===10)o.M910=[A[4]?.name||"5e Poule A",B[4]?.name||"5e Poule B"];
   return o;
 }
 function getWinner(id,teams){
