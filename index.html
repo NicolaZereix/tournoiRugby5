@@ -406,8 +406,8 @@ function loginOrganizer(){
     err.textContent="";
     document.getElementById("authPassword").value="";
     closeAuthModal();
-  }).catch(()=>{
-    err.textContent="Connexion refusée. Vérifiez l'e-mail et le mot de passe.";
+  }).catch((error)=>{
+    const code = error && error.code ? error.code : "erreur inconnue"; const message = error && error.message ? error.message : ""; err.textContent="Connexion refusée — " + code + (message ? " — " + message : "");
   });
 }
 
