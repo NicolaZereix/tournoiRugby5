@@ -123,6 +123,14 @@ td.team{text-align:left;font-weight:800}
 .adminonly.hidden{display:none!important}
 .readonly input,.readonly select{background:#f5f6f8;color:#6d778a}
 
+
+.final-ranking{margin-top:14px}
+.final-ranking table{width:100%;border-collapse:collapse}
+.final-ranking th,.final-ranking td{padding:9px 8px;border-bottom:1px solid #e7ebf2;text-align:left}
+.final-ranking th{background:#f4f7fc;color:#44516a}
+.final-ranking td:first-child{width:60px;text-align:center;font-weight:900;color:var(--blue)}
+.final-ranking td:nth-child(2){font-weight:800}
+
 @media print{
   .toolbar,.status,.bottom-save,#displayOverlay{display:none!important}
   body{background:#fff;padding-bottom:0}
@@ -213,6 +221,12 @@ td.team{text-align:left;font-weight:800}
       <div><b>🥈 Finaliste</b><span id="podium2">—</span></div>
       <div><b>🥉 3e place</b><span id="podium3">—</span></div>
     </div>
+
+    <div class="final-ranking">
+      <h2 style="margin-top:18px">Classement final complet</h2>
+      <div id="finalRankingTable"></div>
+    </div>
+
     <p class="note">Départage des poules : points, différence de points, points marqués, puis ordre alphabétique. En cas d'égalité dans un match de phase finale, choisissez manuellement l'équipe qualifiée/gagnante.</p>
   </div>
 </div>
@@ -656,11 +670,47 @@ function renderFinalMatches(){
     box.appendChild(d);
   });
   renderPodium(teams);
+  renderFinalRanking(teams);
 }
 function renderPodium(teams){
   document.getElementById("podium1").textContent=getWinner("FIN",teams.FIN)||"—";
   document.getElementById("podium2").textContent=getLoser("FIN",teams.FIN)||"—";
   document.getElementById("podium3").textContent=getWinner("M34",teams.M34)||"—";
+}
+
+
+function finalRankingRows(teams){
+  const rows=[];
+
+  const finW=getWinner("FIN",teams.FIN), finL=getLoser("FIN",teams.FIN);
+  const m34W=getWinner("M34",teams.M34), m34L=getLoser("M34",teams.M34);
+  const m56W=getWinner("M56",teams.M56), m56L=getLoser("M56",teams.M56);
+  const m78W=getWinner("M78",teams.M78), m78L=getLoser("M78",teams.M78);
+
+  rows.push([1,finW||"Vainqueur finale"]);
+  rows.push([2,finL||"Finaliste"]);
+  rows.push([3,m34W||"Vainqueur petite finale"]);
+  rows.push([4,m34L||"Perdant petite finale"]);
+  rows.push([5,m56W||"Vainqueur match 5e / 6e"]);
+  rows.push([6,m56L||"Perdant match 5e / 6e"]);
+  rows.push([7,m78W||"Vainqueur match 7e / 8e"]);
+  rows.push([8,m78L||"Perdant match 7e / 8e"]);
+
+  if(state.teamCount===10){
+    const m910W=getWinner("M910",teams.M910), m910L=getLoser("M910",teams.M910);
+    rows.push([9,m910W||"Vainqueur match 9e / 10e"]);
+    rows.push([10,m910L||"Perdant match 9e / 10e"]);
+  }
+  return rows;
+}
+
+function renderFinalRanking(teams){
+  const rows=finalRankingRows(teams);
+  let h="<table><thead><tr><th>Place</th><th>Équipe</th></tr></thead><tbody>";
+  rows.forEach(r=>h+=`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`);
+  h+="</tbody></table>";
+  const el=document.getElementById("finalRankingTable");
+  if(el)el.innerHTML=h;
 }
 
 function nextSlot(){
